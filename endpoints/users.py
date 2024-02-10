@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 import models
 from database import get_database
 from schemas.user_schemas import User
+from schemas.admin_schemas import AccessToken
+from utils import check_access_token
 
 router = APIRouter(prefix='/api/users')
 
@@ -11,13 +13,17 @@ router = APIRouter(prefix='/api/users')
 # Method: GET
 # Action: List users
 @router.get('/')
-async def read_api(db: Session = Depends(get_database)):
+async def read_api(response: Response, token_info: AccessToken, db: Session = Depends(get_database)):
+
+    if not check_access_token(db, token_info.access_token):
+        return {'response': 'The access token is invalid.'}
+
     users = db.query(models.User).all()
 
     if not users:
         return {'message': 'There are currently no users registered!'}
 
-    return {'users': users}
+    return {'users': users, 'token': token_info}
 
 
 # Endpoint https://BASE_URI/api/users

@@ -1,9 +1,7 @@
 import os
 from fastapi import APIRouter, Response, status, Depends
 from uuid import uuid4
-
 from sqlalchemy.orm import Session
-
 import models
 from database import get_database
 
