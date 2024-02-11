@@ -53,3 +53,9 @@ async def delete_note(note_id: NoteID, api_key: str = Depends(validate_api_key),
     db.commit()
 
     return {'response': 'Successfully deleted note', 'note_id': note.id}
+
+
+@router.get('/owner')
+async def get_notes_for_owner(user_id: UserID, api_key: str = Depends(validate_api_key), db: Session = Depends(get_database)):
+    # TODO: Get all notes for specific owner
+    return {'response': 'Successfully retrieved notes for owner'}
