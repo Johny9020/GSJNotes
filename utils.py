@@ -1,14 +1,20 @@
+from fastapi.security import APIKeyHeader
 from sqlalchemy.orm import Session
 import models
 import bcrypt
+from database import get_database
+from fastapi import Security, Depends, status, HTTPException
+
+api_key_header = APIKeyHeader(name='GSJ_API_KEY')
 
 
-def check_access_token(db: Session, access_token: str):
-    access_token = db.query(models.AccessToken).filter(models.AccessToken.access_token == access_token).first()
+async def validate_api_key(api_key: str = Security(api_key_header), db: Session = Depends(get_database)):
+    db_key = db.query(models.APIKey).filter(models.APIKey.api_key == api_key).first()
 
-    if not access_token:
-        return False
-    return True
+    if not db_key:
+        raise HTTPException(status_code=403, detail='Invalid API Key')
+
+    return db_key
 
 
 def encrypt_password(password):
