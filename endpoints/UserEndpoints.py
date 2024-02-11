@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.orm import Session
 import models
 from database import get_database
-from schemas.user_schemas import User, UserDelete
+from schemas.UserSchemas import User, UserDelete
 from utils import encrypt_password, validate_api_key
 from error_handlers.UserError import UserException
 
