@@ -57,5 +57,14 @@ async def delete_note(note_id: NoteID, api_key: str = Depends(validate_api_key),
 
 @router.get('/owner')
 async def get_notes_for_owner(user_id: UserID, api_key: str = Depends(validate_api_key), db: Session = Depends(get_database)):
-    # TODO: Get all notes for specific owner
-    return {'response': 'Successfully retrieved notes for owner'}
+    user = db.query(models.User).filter(models.User.id == user_id.id).first()
+
+    if not user:
+        raise UserException(status_code=400, details='User does not exist')
+
+    notes = db.query(models.Note).filter(models.Note.owner_id == user_id.id).all()
+
+    if not notes:
+        return JSONResponse(status_code=201, content={'response': 'User ' + user_id.id + ' has no notes'})
+
+    return {'response': 'Successfully retrieved notes for owner', 'data': notes}

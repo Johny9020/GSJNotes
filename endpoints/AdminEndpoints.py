@@ -41,7 +41,7 @@ async def create_access_token(response: Response, user_info: dict, db: Session =
         return {'status': response.status_code, 'error': 'Failed to authorize admin!'}
 
     admin_model = models.APIKey()
-    admin_model.api_key = f'gsj_apk_{str(uuid4()).replace('-', '')}'
+    admin_model.api_key = 'gsj_apk_' + str(uuid4()).replace('-', '')
 
     db.add(admin_model)
     db.commit()
