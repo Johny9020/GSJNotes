@@ -6,8 +6,8 @@ from fastapi.exceptions import RequestValidationError
 import models
 from database import engine
 from fastapi.middleware.cors import CORSMiddleware
-from endpoints.users import router as user_router
-from endpoints.admin import router as admin_router
+from endpoints.UserEndpoints import router as user_router
+from endpoints.AdminEndpoints import router as admin_router
 from error_handlers.RequestValidationHandler import validation_exception_handler
 from error_handlers.UserError import UserException, user_exception_handler
 
