@@ -12,8 +12,6 @@ sqlite3.register_adapter(uuid.UUID, lambda u: u.bytes)
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={'check_same_thread': False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-Base = declarative_base()
-
 
 def get_database():
     db = SessionLocal()
@@ -21,3 +19,6 @@ def get_database():
         yield db
     finally:
         db.close()
+
+
+Base = declarative_base()
