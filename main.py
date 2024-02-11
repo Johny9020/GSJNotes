@@ -8,18 +8,22 @@ from database import engine
 from fastapi.middleware.cors import CORSMiddleware
 from endpoints.UserEndpoints import router as user_router
 from endpoints.AdminEndpoints import router as admin_router
+from endpoints.NoteEndpoints import router as note_router
 from error_handlers.RequestValidationHandler import validation_exception_handler
 from error_handlers.UserError import UserException, user_exception_handler
+from error_handlers.DataError import DataException, data_exception_handler
 
 
 def initialize_routers(app_: FastAPI) -> None:
     app_.include_router(user_router)
     app_.include_router(admin_router)
+    app_.include_router(note_router)
 
 
 def initialize_handlers(app_: FastAPI) -> None:
     app_.add_exception_handler(exc_class_or_status_code=RequestValidationError, handler=validation_exception_handler)
     app_.add_exception_handler(exc_class_or_status_code=UserException, handler=user_exception_handler)
+    app_.add_exception_handler(exc_class_or_status_code=DataException, handler=data_exception_handler)
 
 
 def initialize_middleware() -> List[Middleware]:

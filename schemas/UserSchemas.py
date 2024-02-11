@@ -9,3 +9,7 @@ class User(BaseModel):
 
 class UserDelete(BaseModel):
     user_id: str = Field(min_length=1)
+
+
+class UserID(BaseModel):
+    id: str = Field(min_length=1)

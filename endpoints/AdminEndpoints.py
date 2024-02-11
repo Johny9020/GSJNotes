@@ -3,7 +3,7 @@ from fastapi import APIRouter, Response, status, Depends
 from uuid import uuid4
 from sqlalchemy.orm import Session
 import models
-from database import get_database
+from database import get_database, engine
 from config import settings
 
 router = APIRouter(prefix='/api/admin', tags=['Admin endpoints'])
@@ -51,3 +51,12 @@ async def create_access_token(response: Response, user_info: dict, db: Session =
     return {'status': response.status_code, 'access_token': admin_model.api_key}
 
 
+@router.get('/reset')
+async def reset_token(response: Response, user_info: dict, db: Session = Depends(get_database)):
+    if not check_admin(user_info, db):
+        response.status_code = status.HTTP_401_UNAUTHORIZED
+        return {'status': response.status_code, 'error': 'Failed to authorize admin!'}
+
+    models.Base.metadata.drop_all(bind=engine)
+    models.Base.metadata.create_all(bind=engine)
+    return {'status': 'Successfully deleted database'}
