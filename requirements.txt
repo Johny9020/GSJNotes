@@ -3,3 +3,4 @@ uvicorn[standard]
 pydantic~=2.6.1
 SQLAlchemy~=2.0.25
 python-dotenv~=1.0.1
+bcrypt~=4.1.2
