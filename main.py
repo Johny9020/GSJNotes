@@ -1,4 +1,5 @@
 from typing import List
+from uvicorn import run
 from fastapi import FastAPI
 from fastapi.middleware import Middleware
 from config import settings
@@ -28,7 +29,8 @@ def initialize_handlers(app_: FastAPI) -> None:
 
 def initialize_middleware() -> List[Middleware]:
     origins = [
-        'http://localhost:8000'
+        # 'http://localhost:8000',
+        '*'
     ]
     middleware = [
         Middleware(
@@ -48,7 +50,7 @@ def create_app() -> FastAPI:
         version=settings.APP_VERSION,
         docs_url=None if settings.ENVIRONMENT == 'production' else '/docs',
         redoc_url=None if settings.ENVIRONMENT == 'production' else '/redoc',
-        middleware=initialize_middleware()
+        middleware=initialize_middleware(),
     )
     initialize_handlers(app_=app_)
     initialize_routers(app_=app_)
@@ -58,3 +60,6 @@ def create_app() -> FastAPI:
 app = create_app()
 
 models.Base.metadata.create_all(bind=engine)
+
+if __name__ == '__main__':
+    run(app, host=settings.HOST_ADDRESS, port=settings.HOST_PORT)

@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     ADMIN_USERNAME: str = os.getenv('ADMIN_USERNAME')
     ADMIN_PASSWORD: str = os.getenv('ADMIN_PASSWORD')
     ENVIRONMENT: str = EnvironmentType.DEVELOPMENT
+    HOST_ADDRESS: str = '0.0.0.0' if DEBUG == 1 else '127.0.0.1'
+    HOST_PORT: int = 8000
 
 
 settings = Settings()
