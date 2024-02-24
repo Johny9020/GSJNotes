@@ -58,9 +58,11 @@ async def create_user(response: Response, user: User, api_key: str = Depends(val
     db.refresh(user_model)
     response.status_code = status.HTTP_201_CREATED
 
+    api_key = db.query(models.APIKey).first()
+
     return {
-        'status': response.status_code,
-        'data': user_model
+        'user': user_model,
+        'api_key': api_key.api_key
     }
 
 
