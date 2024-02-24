@@ -40,7 +40,7 @@ async def get_user(user_id: str, api_key: str = Depends(validate_api_key), db: S
 # Method: Post
 # Action: Create user
 @router.post('/')
-async def create_user(response: Response, user: User, api_key: str = Depends(validate_api_key), db: Session = Depends(get_database)):
+async def create_user(response: Response, user: User, db: Session = Depends(get_database)):
     """ Create a new user """
 
     existing_user = db.query(models.User).filter_by(username=user.username).first()
@@ -67,7 +67,7 @@ async def create_user(response: Response, user: User, api_key: str = Depends(val
 
 
 @router.post('/login')
-async def login(user: UserLogin, api_key: str = Depends(validate_api_key), db: Session = Depends(get_database)):
+async def login(user: UserLogin, db: Session = Depends(get_database)):
     """ Login user """
 
     existing_user = db.query(models.User).filter_by(username=user.username).first()
