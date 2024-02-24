@@ -12,7 +12,7 @@ class EnvironmentType(str, Enum):
 
 
 class Settings(BaseSettings):
-    DEBUG: int = 1
+    DEBUG: int = 0
     APP_NAME: str = 'GSJ Notes'
     APP_VERSION: str = '0.1'
     ADMIN_USERNAME: str = os.getenv('ADMIN_USERNAME')
