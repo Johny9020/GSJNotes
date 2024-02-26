@@ -1,4 +1,3 @@
-import os
 from fastapi import APIRouter, Response, status, Depends
 from uuid import uuid4
 from sqlalchemy.orm import Session
@@ -10,7 +9,7 @@ from error_handlers.AdminError import AdminException
 router = APIRouter(prefix='/api/admin', tags=['Admin endpoints'])
 
 
-def check_admin(user_info: dict, db: Session = Depends()):
+def check_admin(user_info: dict):
     username = user_info.get('username')
     password = user_info.get('password')
 
@@ -25,7 +24,7 @@ def check_admin(user_info: dict, db: Session = Depends()):
 # Action: Get all api keys
 @router.get('/')
 async def get_admin(response: Response, user_info: dict, db: Session = Depends(get_database)):
-    if not check_admin(user_info, db):
+    if not check_admin(user_info):
         raise AdminException(status_code=401, details="Failed to authorize admin")
 
     access_tokens = db.query(models.APIKey).all()
@@ -41,10 +40,8 @@ async def get_admin(response: Response, user_info: dict, db: Session = Depends(g
 # Method: Post
 # Action: Create a new api key
 @router.post('/cas')
-async def create_access_token(response: Response, user_info: dict = Depends(check_admin),
-                              db: Session = Depends(get_database)):
-    if not check_admin(user_info, db):
-        response.status_code = status.HTTP_401_UNAUTHORIZED
+async def create_access_token(user_info: dict = Depends(check_admin), db: Session = Depends(get_database)):
+    if not check_admin(user_info):
         raise AdminException(status_code=401, details="Failed to authorize admin")
 
     admin_model = models.APIKey()
@@ -53,9 +50,8 @@ async def create_access_token(response: Response, user_info: dict = Depends(chec
     db.add(admin_model)
     db.commit()
     db.refresh(admin_model)
-    response.status_code = status.HTTP_201_CREATED
 
-    return {'status': response.status_code, 'api_key': admin_model.api_key}
+    return {'api_key': admin_model.api_key}
 
 
 # Endpoint https://BASE_URI/api/admin/delete/{user_id}
@@ -65,7 +61,7 @@ async def create_access_token(response: Response, user_info: dict = Depends(chec
 async def delete_user_data(response: Response, user_id: str, user_info: dict, db: Session = Depends(get_database)):
     """ Delete every note that belongs to {user_id} """
 
-    if not check_admin(user_info, db):
+    if not check_admin(user_info):
         raise AdminException(status_code=401, details="Failed to authorize admin")
 
     notes = db.query(models.Note).filter_by(owner_id=user_id)
@@ -84,10 +80,12 @@ async def delete_user_data(response: Response, user_id: str, user_info: dict, db
 # Method: POST
 # Action: Reset the entire database
 @router.post('/reset')
-async def reset_token(response: Response, user_info: dict, db: Session = Depends(get_database)):
-    if not check_admin(user_info, db):
+async def reset_token(user_info: dict, db: Session = Depends(get_database)):
+    if not check_admin(user_info):
         raise AdminException(status_code=401, details="Failed to authorize admin")
 
     models.Base.metadata.drop_all(bind=engine)
     models.Base.metadata.create_all(bind=engine)
+    db.commit()
+
     return {'status': 'Successfully deleted database'}
