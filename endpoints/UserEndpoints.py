@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, Response, status
-from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 import models
 from database import get_database
@@ -25,6 +24,9 @@ async def read_api(response: Response, api_key: str = Depends(validate_api_key),
     return {'users': users}
 
 
+# Endpoint https://BASE_URI/api/users/{user_id}
+# Method: GET
+# Action: Get a user's username by his ID
 @router.get('/{user_id}')
 async def get_user(user_id: str, api_key: str = Depends(validate_api_key), db: Session = Depends(get_database)):
     """ Retrieve user's details by id'"""
@@ -66,6 +68,9 @@ async def create_user(response: Response, user: User, db: Session = Depends(get_
     }
 
 
+# Endpoint https://BASE_URI/api/users/login
+# Method: Post
+# Action: Login a user with his credentials
 @router.post('/login')
 async def login(user: UserLogin, db: Session = Depends(get_database)):
     """ Login user """

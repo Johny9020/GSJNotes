@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Response
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 import models
@@ -10,10 +10,12 @@ from schemas.UserSchemas import UserID
 from utils import validate_api_key
 from datetime import datetime
 
-
 router = APIRouter(prefix='/api/notes', tags=['Note endpoints'])
 
 
+# Endpoint https://BASE_URI/api/notes
+# Method: GET
+# Action: Get all notes in database
 @router.get('/')
 async def root(api_key: str = Depends(validate_api_key), db: Session = Depends(get_database)):
     note_data = db.query(models.Note).all()
@@ -24,8 +26,12 @@ async def root(api_key: str = Depends(validate_api_key), db: Session = Depends(g
     return note_data
 
 
+# Endpoint https://BASE_URI/api/notes
+# Method: Post
+# Action: Create a new note
 @router.post('/')
-async def create_note(user_id: UserID, note: NoteSchema, api_key: str = Depends(validate_api_key), db: Session = Depends(get_database)):
+async def create_note(response: Response, user_id: UserID, note: NoteSchema, api_key: str = Depends(validate_api_key),
+                      db: Session = Depends(get_database)):
     user = db.query(models.User).filter_by(id=user_id.id).first()
 
     if not user:
@@ -40,9 +46,13 @@ async def create_note(user_id: UserID, note: NoteSchema, api_key: str = Depends(
     db.commit()
     db.refresh(note_model)
 
+    response.status_code = status.HTTP_201_CREATED
     return note_model
 
 
+# Endpoint https://BASE_URI/api/notes/{note_id}
+# Method: PUT
+# Action: Update a note
 @router.put("/{note_id}")
 async def update_note(note_id: str, note_data: NoteUpdate, api_key: str = Depends(validate_api_key),
                       db: Session = Depends(get_database)):
@@ -61,6 +71,9 @@ async def update_note(note_id: str, note_data: NoteUpdate, api_key: str = Depend
     return note
 
 
+# Endpoint https://BASE_URI/api/notes
+# Method: DELETE
+# Action: Delete a specific note
 @router.delete('/')
 async def delete_note(note_id: NoteID, api_key: str = Depends(validate_api_key), db: Session = Depends(get_database)):
     note = db.query(models.Note).filter_by(id=note_id.id).first()
@@ -74,6 +87,9 @@ async def delete_note(note_id: NoteID, api_key: str = Depends(validate_api_key),
     return {'response': 'Successfully deleted note', 'note_id': note.id}
 
 
+# Endpoint https://BASE_URI/api/notes/owner
+# Method: GET
+# Action: Get every note belonging to a user
 @router.get('/owner')
 async def get_notes_for_owner(user_id: UserID, api_key: str = Depends(validate_api_key),
                               db: Session = Depends(get_database)):
