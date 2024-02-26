@@ -13,6 +13,7 @@ from endpoints.NoteEndpoints import router as note_router
 from error_handlers.RequestValidationHandler import validation_exception_handler
 from error_handlers.UserError import UserException, user_exception_handler
 from error_handlers.DataError import DataException, data_exception_handler
+from error_handlers.AdminError import AdminException, admin_exception_handler
 
 
 def initialize_routers(app_: FastAPI) -> None:
@@ -25,6 +26,7 @@ def initialize_handlers(app_: FastAPI) -> None:
     app_.add_exception_handler(exc_class_or_status_code=RequestValidationError, handler=validation_exception_handler)
     app_.add_exception_handler(exc_class_or_status_code=UserException, handler=user_exception_handler)
     app_.add_exception_handler(exc_class_or_status_code=DataException, handler=data_exception_handler)
+    app_.add_exception_handler(exc_class_or_status_code=AdminException, handler=admin_exception_handler)
 
 
 def initialize_middleware() -> List[Middleware]:
