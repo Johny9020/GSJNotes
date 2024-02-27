@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  web:
+    container_name: "GSJ_Notes_Backend"
+    build: .
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    volumes:
+      - ./:/gsjnotes
+    env_file:
+      - ./.env
+    ports:
+      - "8000:8000"
+    restart: no
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:14-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=012060
+      - POSTGRES_USER=johny
+      - POSTGRES_DB=gsjnotes
+
+#  database:
+#    container_name: "GSJ_Notes_Database"
+#    image: postgres
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
+#    expose:
+#      - 5433
+#    environment:
+#      - POSTGRES_USER=johny
+#      - POSTGRES_PASSWORD=012060Johnny
+#      - POSTGRES_DB=gsjnotes
+volumes:
+  postgres_data:
