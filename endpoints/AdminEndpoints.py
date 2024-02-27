@@ -40,7 +40,7 @@ async def get_admin(response: Response, user_info: dict, db: Session = Depends(g
 # Method: Post
 # Action: Create a new api key
 @router.post('/cas')
-async def create_access_token(user_info: dict = Depends(check_admin), db: Session = Depends(get_database)):
+async def create_access_token(user_info: dict, db: Session = Depends(get_database)):
     if not check_admin(user_info):
         raise AdminException(status_code=401, details="Failed to authorize admin")
 
