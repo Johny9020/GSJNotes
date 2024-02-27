@@ -4,8 +4,10 @@ import models
 import bcrypt
 from database import get_database
 from fastapi import Security, Depends, status, HTTPException
+from passlib.context import CryptContext
 
 api_key_header = APIKeyHeader(name='GSJ_API_KEY')
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 async def validate_api_key(api_key: str = Security(api_key_header), db: Session = Depends(get_database)):
@@ -18,9 +20,8 @@ async def validate_api_key(api_key: str = Security(api_key_header), db: Session 
 
 
 def encrypt_password(password):
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-    return hashed_password
+    return pwd_context.hash(password)
 
 
 def check_password(plain_password, hashed_password):
-    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password)
+    return pwd_context.verify(plain_password, hashed_password)
