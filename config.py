@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = os.getenv("DATABASE_URL") if DEBUG == 0 else 'sqlite:///./database.db'
     ENVIRONMENT: str = EnvironmentType.DEVELOPMENT
     HOST_ADDRESS: str = '0.0.0.0' if DEBUG == 1 else '127.0.0.1'
-    HOST_PORT: int = 8000
+    HOST_PORT: int = 8001
 
 
 settings = Settings()
