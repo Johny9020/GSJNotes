@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from endpoints.UserEndpoints import router as user_router
 from endpoints.AdminEndpoints import router as admin_router
 from endpoints.NoteEndpoints import router as note_router
+from endpoints.iOSEndpoints import router as ios_router
 from error_handlers.RequestValidationHandler import validation_exception_handler
 from error_handlers.UserError import UserException, user_exception_handler
 from error_handlers.DataError import DataException, data_exception_handler
@@ -20,6 +21,7 @@ def initialize_routers(app_: FastAPI) -> None:
     app_.include_router(user_router)
     app_.include_router(admin_router)
     app_.include_router(note_router)
+    app_.include_router(ios_router)
 
 
 def initialize_handlers(app_: FastAPI) -> None:

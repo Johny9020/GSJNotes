@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = EnvironmentType.DEVELOPMENT
     HOST_ADDRESS: str = '0.0.0.0' if DEBUG == 0 else '127.0.0.1'
     HOST_PORT: int = 8001
+    IOS_HOST: str = os.getenv('IOS_HOST')
+    IOS_PORT: str = os.getenv('IOS_PORT')
+    IOS_DATABASE_PORT: str = os.getenv('IOS_DATABASE_PORT')
 
 
 settings = Settings()
