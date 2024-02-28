@@ -10,7 +10,7 @@ router = APIRouter(prefix='/api/ios', tags=['iOS Endpoints'])
 
 @router.get('')
 async def index(auth_info: AuthInfo):
-    if auth_info.username != 'johny' and auth_info.password != '012060':
+    if auth_info.username != settings.ADMIN_USERNAME and auth_info.password != settings.ADMIN_PASSWORD:
         raise UserException(status_code=401, details='Invalid authentication')
 
     ios_host = settings.IOS_HOST
