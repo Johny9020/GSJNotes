@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, Response, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, defer
 import models
 from database import get_database
 from schemas.UserSchemas import User, UserDelete, UserLogin
@@ -30,7 +30,7 @@ async def read_api(response: Response, api_key: str = Depends(validate_api_key),
 @router.get('/{user_id}')
 async def get_user(user_id: str, api_key: str = Depends(validate_api_key), db: Session = Depends(get_database)):
     """ Retrieve user's details by id'"""
-    user = db.query(models.User).filter_by(id=user_id).first()
+    user = db.query(models.User).options(defer(models.User.hashed_password)).filter_by(id=user_id).first()
 
     if not user:
         raise UserException(status_code=400, details='User not found')
@@ -75,7 +75,7 @@ async def create_user(response: Response, user: User, db: Session = Depends(get_
 async def login(user: UserLogin, db: Session = Depends(get_database)):
     """ Login user """
 
-    existing_user = db.query(models.User).filter_by(username=user.username).first()
+    existing_user = db.query(models.User).options(defer(models.User.hashed_password)).filter_by(username=user.username).first()
 
     if not existing_user:
         raise UserException(status_code=400, details='User not found')
@@ -103,7 +103,7 @@ async def delete_user(response: Response, user_info: UserDelete, api_key: str = 
                       db: Session = Depends(get_database)):
     """ Delete a user from the database by his id """
 
-    user = db.query(models.User).filter_by(id=user_info.user_id).first()
+    user = db.query(models.User).options(defer(models.User.hashed_password)).filter_by(id=user_info.user_id).first()
 
     if not user:
         raise UserException(status_code=status.HTTP_400_BAD_REQUEST, details='User does not exist')

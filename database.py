@@ -1,4 +1,3 @@
-import os
 import sqlite3
 import uuid
 from sqlalchemy import create_engine
