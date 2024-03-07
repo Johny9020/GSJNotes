@@ -17,7 +17,16 @@ async def get_entries(api_key: str = Depends(validate_api_key), db: Session = De
     if not entries:
         return JSONResponse(status_code=200, content={'message': 'There are no entries in the database'})
 
-    return entries
+    json_entries = jsonable_encoder(entries)
+
+    for x in range(0, len(entries)):
+        notifications = (
+            db.query(models.NotificationModel).options(defer(models.NotificationModel.diary_entry_id))
+            .filter_by(diary_entry_id=entries[x].id).all())
+        if notifications:
+            json_entries[x].update({'notifications': notifications})
+
+    return json_entries
 
 
 @router.get('/notifications')
@@ -30,21 +39,27 @@ async def get_notifications(api_key: str = Depends(validate_api_key), db: Sessio
     return notifications
 
 
-@router.get('/{entry_id}')
-async def get_entry(entry_id: str, api_key: str = Depends(validate_api_key), db: Session = Depends(get_database)):
-    entry = db.query(models.DiaryEntry).filter_by(id=entry_id).first()
-    notifications = (db.query(models.NotificationModel).options(defer(models.NotificationModel.diary_entry_id))
-                     .filter_by(diary_entry_id=entry_id).all())
+@router.get('/{date}')
+async def get_entry_by_date(date: str, api_key: str = Depends(validate_api_key), db: Session = Depends(get_database)):
+    entries = db.query(models.DiaryEntry).all()
 
-    if not entry:
-        raise HTTPException(status_code=404, detail="Entry not found")
+    if not entries:
+        raise HTTPException(status_code=404, detail="Entries not found")
 
-    json_data = jsonable_encoder(entry)
+    for entry in entries:
+        date_string = entry.created_at.__str__()
+        if date_string == date:
+            notifications = (db.query(models.NotificationModel).options(defer(models.NotificationModel.diary_entry_id))
+                             .filter_by(diary_entry_id=entry.id).all())
 
-    if notifications:
-        json_data.update({'notifications': notifications})
+            json_data = jsonable_encoder(entry)
 
-    return json_data
+            if notifications:
+                json_data.update({'notifications': notifications})
+
+            return json_data
+
+    return JSONResponse(status_code=400, content={'message': 'Error'})
 
 
 @router.post('/create')
@@ -61,6 +76,21 @@ async def index(entry: DiaryEntryCreate, api_key: str = Depends(validate_api_key
     db.refresh(diary_entry)
 
     return diary_entry
+
+
+@router.delete('/{entry_id}')
+async def delete_entry(entry_id: str, db: Session = Depends(get_database)):
+    entry = db.query(models.DiaryEntry).filter_by(id=entry_id).first()
+
+    if not entry:
+        raise HTTPException(status_code=400, detail="Entry not found")
+
+    db.delete(entry)
+    db.commit()
+
+    return {
+        "success": True
+    }
 
 
 @router.post("/{entry_id}/notifications/")
@@ -81,21 +111,6 @@ async def create_notification_for_entry(entry_id: str, notification: Notificatio
     db.refresh(entry)
 
     return db_notification
-
-
-@router.delete('/{entry_id}')
-async def delete_entry(entry_id: str, db: Session = Depends(get_database)):
-    entry = db.query(models.DiaryEntry).filter_by(id=entry_id).first()
-
-    if not entry:
-        raise HTTPException(status_code=400, detail="Entry not found")
-
-    db.delete(entry)
-    db.commit()
-
-    return {
-        "success": True
-    }
 
 
 @router.delete('/notifications/{notification_id}')
